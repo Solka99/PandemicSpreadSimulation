@@ -3,6 +3,7 @@ import sys
 import random
 from game.agent import Agent
 
+
 pygame.init()
 
 
