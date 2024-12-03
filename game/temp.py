@@ -1,6 +1,6 @@
 import pygame
+import numpy as np
 
-pygame.init()
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
