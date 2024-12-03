@@ -2,7 +2,6 @@ import pygame
 import sys
 import random
 from game.agent import Agent
-from sim import BLACK
 
 pygame.init()
 
@@ -14,7 +13,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 
-FPS = 3
+FPS = 60
 # agent_speed = 5
 
 clock = pygame.time.Clock()
@@ -35,7 +34,7 @@ for i in range(100):
     agent = Agent(i,x,y, age, 'S')
     agents.append(agent)
 
-    agent.draw(screen,GREEN)
+    agent.draw(screen)
 
 pygame.display.update()
 
@@ -47,9 +46,9 @@ while True:
             sys.exit()
 
     for agent in agents:
-        agent.position = agent.calculate_position()
-        print(agent.position)
-        agent.draw(screen,GREEN)
+        agent.move()
+    for agent in agents:
+        agent.draw(screen)
     pygame.display.update()
     screen.fill(BLACK)
     clock.tick(FPS)
