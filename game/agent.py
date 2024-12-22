@@ -9,6 +9,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+GRAY = (128, 128, 128)
 
 
 class Agent:
@@ -77,6 +78,8 @@ class Agent:
                 self.color = YELLOW
             case 'R':
                 self.color = BLUE
+            case 'D':
+                self.color = GRAY
 
     def draw(self,screen):
         pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)

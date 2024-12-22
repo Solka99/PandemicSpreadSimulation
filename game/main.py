@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 from game.agent import Agent
-from game.infection_spread_logic import change_to_infected_logic
+from game.infection_spread_logic import change_to_infected_logic, change_to_recovered_logic, change_to_dead_logic
 
 pygame.init()
 
@@ -56,6 +56,8 @@ while True:
     if now - last_call >= interval:  # Wykonuj co 2 sekundy
         for agent in agents:
             change_to_infected_logic(agent)
+            # change_to_recovered_logic(agent)
+            # change_to_dead_logic(agent)  # muszą mieć osobne odliczanie
         last_call = now
 
     for i, agent in enumerate(agents):
