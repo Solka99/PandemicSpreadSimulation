@@ -8,9 +8,11 @@ SCREEN_HEIGHT = 600
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+
 
 class Agent:
-    def __init__(self, id, x, y, age, health_state):
+    def __init__(self, id, x, y, age, health_state,radius):
         self.id = id
         self.x = x
         self.y = y
@@ -20,6 +22,8 @@ class Agent:
         self.age = age
         self.health_state = health_state
         self.color = GREEN
+        self.radius = radius
+        self.infection_radius = radius + 10
 
     def move(self):
         self.position += self.direction * self.speed
@@ -40,7 +44,7 @@ class Agent:
 
     def collision_action(self,dot2):
         distance = math.sqrt((self.position.x - dot2.position.x) ** 2 + (self.position.y - dot2.position.y) ** 2)
-        if distance <= 2 * 8:  # 4 to promień jednej kropki
+        if distance <= 2 * self.radius:
             self.direction.x *= -1
             dot2.direction.x *= -1
             self.move()
@@ -52,6 +56,16 @@ class Agent:
                 self.health_state = 'E'
                 self.change_color()
 
+    def check_exposure(self, other):
+        if self.health_state == 'I':
+            distance = self.position.distance_to(other.position)
+            if self.radius < distance <= self.infection_radius:
+                other.change_health_state('E')
+
+
+    def change_health_state(self, state):
+        self.health_state = state
+        self.change_color()
 
     def change_color(self):
         match self.health_state:
@@ -60,7 +74,12 @@ class Agent:
             case 'I':
                 self.color = RED
             case 'E':
+                self.color = YELLOW
+            case 'R':
                 self.color = BLUE
 
     def draw(self,screen):
-        pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), 8)
+        pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
+
+        # Rysowanie strefy infekcji (opcjonalne, można zakomentować)
+        pygame.draw.circle(screen, (255, 255, 255), (int(self.position.x), int(self.position.y)), self.infection_radius, 2)
