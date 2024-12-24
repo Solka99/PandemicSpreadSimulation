@@ -3,7 +3,7 @@ import sys
 import random
 from game.agent import Agent
 from game.infection_spread_logic import change_to_infected_logic, change_to_recovered_logic, change_to_dead_logic
-
+from game.plot import PlotManager
 pygame.init()
 
 
@@ -45,6 +45,8 @@ for i in range(100):
 
 pygame.display.update()
 
+plot_manager = PlotManager()
+plot_manager.run_in_thread(agents)
 
 while True:
     for event in pygame.event.get():

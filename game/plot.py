@@ -2,19 +2,6 @@ import matplotlib; matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import threading
-import random
-from game.agent import Agent
-
-agents=[]
-random.seed(10)
-for i in range(100):
-    x = random.randint(0, 100)
-    y = random.randint(0, 100)
-    age = random.randint(1, 100)
-    agent = Agent(i,x,y, age, 'S',8)
-    if i==20:
-        agent.health_state='R'
-    agents.append(agent)
 
 class PlotManager:
     def __init__(self):
@@ -25,52 +12,46 @@ class PlotManager:
         self.recovered_counts = []
         self.dead_counts = []
 
-    def update_data(self,frame):
-        # susceptible = sum(1 for agent in agents if agent.health_state == 'S')
-        susceptible=0
-        for agent in agents:
-            if agent.health_state == 'S':
-                susceptible+=1
+    def update_data(self,frame,agents):
+        susceptible = sum(1 for agent in agents if agent.health_state == 'S')
+        exposed = sum(1 for agent in agents if agent.health_state == 'E')
+        infected = sum(1 for agent in agents if agent.health_state == 'I')
+        recovered = sum(1 for agent in agents if agent.health_state == 'R')
+        dead = sum(1 for agent in agents if agent.health_state == 'D')
 
-        # exposed = sum(1 for agent in agents if agent.health_state == 'E')
-        # infected = sum(1 for agent in agents if agent.health_state == 'I')
-        # recovered = sum(1 for agent in agents if agent.health_state == 'R')
-        # dead = sum(1 for agent in agents if agent.health_state == 'D')
-        #
         self.susceptible_counts.append(susceptible)
-        # self.exposed_counts.append(exposed)
-        # self.infected_counts.append(infected)
-        # self.recovered_counts.append(recovered)
-        # self.dead_counts.append(dead)
+        self.exposed_counts.append(exposed)
+        self.infected_counts.append(infected)
+        self.recovered_counts.append(recovered)
+        self.dead_counts.append(dead)
 
         plt.cla()
-        plt.plot(self.susceptible_counts)
-        # plt.plot(self.infected_counts)
-        # plt.plot(self.recovered_counts)
 
-    # def plot_animation(self,agents):
-    #     def update_plot(frame):
-    #         self.update_data(frame, agents)
-    #         plt.cla()
-    #         plt.tight_layout()
-    #         plt.plot(self.time_steps, self.susceptible_counts, label="Susceptible", color="green")
-    #         plt.plot(self.time_steps, self.infected_counts, label="Infected", color="red")
-    #         plt.plot(self.time_steps, self.recovered_counts, label="Recovered", color="blue")
-    #         plt.legend(loc="upper right")
-    #         plt.xlabel("Time Steps")
-    #         plt.ylabel("Count")
-    #         plt.title("Agent States Over Time")
+        categories = ["Susceptible", "Exposed", "Infected", "Recovered", "Dead"]
+        values = [
+            self.susceptible_counts[-1], # ostatnia wartośćmw liście to ostatni count
+            self.exposed_counts[-1],
+            self.infected_counts[-1],
+            self.recovered_counts[-1],
+            self.dead_counts[-1],
+        ]
+        plt.ylim(0, 100)
+
+        plt.bar(categories, values, color=["green", "yellow", "red", "blue", "gray"])
+        plt.xlabel("Health States")
+        plt.ylabel("Count")
+        plt.title("Agent Health State Over Time")
+        plt.tight_layout()
 
 
-    def animation(self):
-        ani = FuncAnimation(plt.gcf(),self.update_data,len(agents),interval=500)
-        plt.cla()
+    def animation(self, agents):
+        def update(frame):
+            self.update_data(frame,agents)  # Przekazywanie agents do update_data
+
+        ani = FuncAnimation(plt.gcf(), update, interval=500)
         plt.show()
 
-    # def run_in_thread(self, agents):
-    #     """Uruchamia wykres w osobnym wątku."""
-    #     plot_thread = threading.Thread(target=self.update_data, args=(agents,), daemon=True)
-    #     plot_thread.start()
-
-plotManager = PlotManager()
-plotManager.animation()
+    def run_in_thread(self, agents):
+        """Uruchamia wykres w osobnym wątku."""
+        plot_thread = threading.Thread(target=self.animation, args=(agents,), daemon=True)
+        plot_thread.start()
