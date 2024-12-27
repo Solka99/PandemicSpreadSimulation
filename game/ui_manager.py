@@ -36,16 +36,19 @@ class UIManager:
             manager=self.manager
         )
         self.confirm_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((300, 400), (200, 50)),
+            relative_rect=pygame.Rect((300, 450), (200, 50)),
             text="Confirm Settings",
             manager=self.manager
         )
 
-
+        self.input_population.set_text("100")
+        self.input_infection_distance.set_text("10")
+        self.vaccinated_agents_number.set_text("30")
 
     def show_menu(self, screen):
         running = True
         clock = pygame.time.Clock()
+
 
         user_settings = {}
 
@@ -68,8 +71,8 @@ class UIManager:
 
                             user_settings = {
                                 "population": int(population) if population.isdigit() else 100,
-                                "infection_rate": float(infection_distance) if infection_distance.replace('.', '',
-                                                                                                  1).isdigit() else 0.1,
+                                "infection_distance": float(infection_distance) if infection_distance.replace('.', '',
+                                                                                                  1).isdigit() else 10,
                                 "vaccinated_agents_number": int(vaccinated_agents_number) if vaccinated_agents_number.isdigit() else 50,
                             }
                             running=False
