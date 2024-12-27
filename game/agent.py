@@ -13,7 +13,7 @@ GRAY = (128, 128, 128)
 
 
 class Agent:
-    def __init__(self, id, x, y, age, health_state,radius):
+    def __init__(self, id, x, y, age, health_state,radius,infection_distance):
         self.id = id
         self.x = x
         self.y = y
@@ -24,7 +24,7 @@ class Agent:
         self.health_state = health_state
         self.color = GREEN
         self.radius = radius
-        self.infection_radius = radius + 10
+        self.infection_radius = radius + infection_distance
 
     def move(self):
         self.position += self.direction * self.speed
@@ -87,4 +87,4 @@ class Agent:
         pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
 
         # Rysowanie strefy infekcji (opcjonalne, można zakomentować)
-        pygame.draw.circle(screen, (255, 255, 255), (int(self.position.x), int(self.position.y)), self.infection_radius, 2)
+        # pygame.draw.circle(screen, (255, 255, 255), (int(self.position.x), int(self.position.y)), self.infection_radius, 2)

@@ -35,6 +35,7 @@ user_settings = ui_manager.show_menu(screen)
 print(f"Ustawienia użytkownika: {user_settings}")
 
 agent_population = user_settings['population']
+infection_distance = user_settings['infection_distance']
 
 screen.fill(BLACK)
 
@@ -47,7 +48,7 @@ for i in range(agent_population):
         x = random.randint(0, SCREEN_WIDTH)
         y = random.randint(0, SCREEN_HEIGHT)
         age = random.randint(1, 100)
-        agent = Agent(i,x,y, age, 'S',8)
+        agent = Agent(i,x,y, age, 'S',8,infection_distance)
         if i==0:
             agent.health_state='I'
             agent.change_color()
