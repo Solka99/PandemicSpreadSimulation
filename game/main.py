@@ -34,6 +34,7 @@ ui_manager = UIManager(SCREEN_WIDTH, SCREEN_HEIGHT)
 user_settings = ui_manager.show_menu(screen)
 print(f"Ustawienia użytkownika: {user_settings}")
 
+agent_population = user_settings['population']
 
 screen.fill(BLACK)
 
@@ -41,7 +42,7 @@ agents=[]
 
 
 random.seed(10)
-for i in range(100):
+for i in range(agent_population):
     while(True):
         x = random.randint(0, SCREEN_WIDTH)
         y = random.randint(0, SCREEN_HEIGHT)

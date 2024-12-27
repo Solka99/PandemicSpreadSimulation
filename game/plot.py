@@ -1,4 +1,4 @@
-import matplotlib; matplotlib.use("TkAgg")
+import matplotlib;matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import threading
@@ -35,7 +35,7 @@ class PlotManager:
             self.recovered_counts[-1],
             self.dead_counts[-1],
         ]
-        plt.ylim(0, 100) # można tu dać zmienną ilości agentów
+        plt.ylim(0, len(agents))
 
         plt.bar(categories, values, color=["green", "yellow", "red", "blue", "gray"])
         plt.xlabel("Health States")
