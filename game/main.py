@@ -4,6 +4,8 @@ import random
 from game.agent import Agent
 from game.infection_spread_logic import change_to_infected_logic, change_to_recovered_logic, change_to_dead_logic
 from game.plot import PlotManager
+from ui_manager import UIManager
+
 pygame.init()
 
 
@@ -26,6 +28,13 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.display.set_caption('Pandemic Spread Simulation')
 
+
+# Tworzenie instancji UIManager
+ui_manager = UIManager(SCREEN_WIDTH, SCREEN_HEIGHT)
+user_settings = ui_manager.show_menu(screen)
+print(f"Ustawienia użytkownika: {user_settings}")
+
+
 screen.fill(BLACK)
 
 agents=[]
@@ -33,14 +42,28 @@ agents=[]
 
 random.seed(10)
 for i in range(100):
-    x = random.randint(0, SCREEN_WIDTH)
-    y = random.randint(0, SCREEN_HEIGHT)
-    age = random.randint(1, 100)
-    agent = Agent(i,x,y, age, 'S',8)
-    if i==0:
-        agent.health_state='I'
-        agent.change_color()
-    agents.append(agent)
+    while(True):
+        x = random.randint(0, SCREEN_WIDTH)
+        y = random.randint(0, SCREEN_HEIGHT)
+        age = random.randint(1, 100)
+        agent = Agent(i,x,y, age, 'S',8)
+        if i==0:
+            agent.health_state='I'
+            agent.change_color()
+
+        no_collision = True
+        for a2 in agents:
+            distance = agent.position.distance_to(a2.position)
+            if distance <= agent.radius + a2.radius:
+                no_collision = False
+                break
+
+        # Jeśli brak kolizji, dodaj agenta do listy
+        if no_collision:
+            agents.append(agent)
+            break
+
+for agent in agents:
     agent.draw(screen)
 
 pygame.display.update()
