@@ -48,6 +48,8 @@ class Agent:
         if distance <= 2 * self.radius:
             self.direction.x *= -1
             dot2.direction.x *= -1
+            self.direction.y *= -1
+            dot2.direction.y *= -1
             self.move()
             dot2.move()
             if self.health_state == 'I' and dot2.health_state == 'S':
