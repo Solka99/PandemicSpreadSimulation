@@ -13,7 +13,7 @@ GRAY = (128, 128, 128)
 
 
 class Agent:
-    def __init__(self, id, x, y, age, health_state,radius,infection_distance):
+    def __init__(self, id, x, y, age, health_state, vaccinated, radius, infection_distance, incubation_time, recovered_time):
         self.id = id
         self.x = x
         self.y = y
@@ -22,9 +22,16 @@ class Agent:
         self.speed = 0.3
         self.age = age
         self.health_state = health_state
+        self.vaccinated = vaccinated
         self.color = GREEN
         self.radius = radius
         self.infection_radius = radius + infection_distance
+        self.was_exposed = False
+        self.was_infected = False
+        self.exposed_time = pygame.time.get_ticks()
+        self.infected_time = pygame.time.get_ticks()
+        self.incubation_time = incubation_time
+        self.recovered_time = recovered_time
 
     def move(self):
         self.position += self.direction * self.speed
@@ -45,6 +52,8 @@ class Agent:
 
     def collision_action(self,dot2):
         distance = math.sqrt((self.position.x - dot2.position.x) ** 2 + (self.position.y - dot2.position.y) ** 2)
+        if self.health_state == 'D' or dot2.health_state == 'D':
+            return
         if distance <= 2 * self.radius:
             self.direction.x *= -1
             dot2.direction.x *= -1
@@ -52,12 +61,12 @@ class Agent:
             dot2.direction.y *= -1
             self.move()
             dot2.move()
-            if self.health_state == 'I' and dot2.health_state == 'S':
-                dot2.health_state = 'E'
-                dot2.change_color()
-            if dot2.health_state == 'I' and self.health_state == 'S':
-                self.health_state = 'E'
-                self.change_color()
+            # if self.health_state == 'I' and dot2.health_state == 'S':
+            #     dot2.health_state = 'E'
+            #     dot2.change_color()
+            # if dot2.health_state == 'I' and self.health_state == 'S':
+            #     self.health_state = 'E'
+            #     self.change_color()
 
     def check_exposure(self, other):
         if self.health_state == 'I':
@@ -83,8 +92,26 @@ class Agent:
             case 'D':
                 self.color = GRAY
 
-    def draw(self,screen):
+    def draw(self, screen):
+        # Tworzenie przezroczystych warstw
+        radius_surface = pygame.Surface((2 * self.infection_radius, 2 * self.infection_radius), pygame.SRCALPHA)
+        radius_surface.fill((0, 0, 0, 0))  # Czyszczenie warstwy
+
+        # Rysowanie strefy infekcji (infection_radius) - półprzezroczysty zielony
+        pygame.draw.circle(
+            radius_surface,
+            (169, 169, 169, 80),  # Zielony z 50% przezroczystością
+            (self.infection_radius, self.infection_radius),
+            self.infection_radius,
+        )
+
+        # Umieszczanie warstwy na ekranie
+        screen.blit(radius_surface,
+                    (int(self.position.x - self.infection_radius), int(self.position.y - self.infection_radius)))
+
+        # Rysowanie samego agenta
         pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
 
-        # Rysowanie strefy infekcji (opcjonalne, można zakomentować)
-        # pygame.draw.circle(screen, (255, 255, 255), (int(self.position.x), int(self.position.y)), self.infection_radius, 2)
+    def get_distance(self, other):
+        distance = math.sqrt((self.position.x - other.position.x) ** 2 + (self.position.y - other.position.y) ** 2)
+        return distance

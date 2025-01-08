@@ -7,7 +7,6 @@ class UIManager:
 
         self.manager = pygame_gui.UIManager((screen_width, screen_height))
 
-
         self.label_population = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect((50, 150), (200, 50)),
             text="Enter population number:",
@@ -42,17 +41,16 @@ class UIManager:
         )
 
         self.input_population.set_text("100")
-        self.input_infection_distance.set_text("10")
+        self.input_infection_distance.set_text("30")
         self.vaccinated_agents_number.set_text("30")
 
     def show_menu(self, screen):
         running = True
         clock = pygame.time.Clock()
 
-
         user_settings = {}
 
-        while (running):
+        while running:
             time_delta = clock.tick(60) / 1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -72,7 +70,7 @@ class UIManager:
                             user_settings = {
                                 "population": int(population) if population.isdigit() else 100,
                                 "infection_distance": float(infection_distance) if infection_distance.replace('.', '',
-                                                                                                  1).isdigit() else 10,
+                                                                                                  1).isdigit() else 30,
                                 "vaccinated_agents_number": int(vaccinated_agents_number) if vaccinated_agents_number.isdigit() else 50,
                             }
                             running=False
