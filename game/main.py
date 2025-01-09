@@ -8,29 +8,19 @@ from ui_manager import UIManager
 
 pygame.init()
 
-
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-
+FPS = 60
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
-
-FPS = 60
-
 VACCINATION_MULTIPLIER = 0.61
+INTERVAL = 100  # milliseconds
 
 clock = pygame.time.Clock()
-
-interval = 100  # czas w milisekundach (np. 2000 ms = 2 sekundy)
-last_call = pygame.time.get_ticks()  # Zapisanie czasu początkowego
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
 pygame.display.set_caption('Pandemic Spread Simulation')
 
-
-# Tworzenie instancji UIManager
 ui_manager = UIManager(SCREEN_WIDTH, SCREEN_HEIGHT)
 user_settings = ui_manager.show_menu(screen)
 print(f"Ustawienia użytkownika: {user_settings}")
@@ -41,7 +31,8 @@ vaccinated_agents_number = user_settings['vaccinated_agents_number']
 
 screen.fill(BLACK)
 
-agents=[]
+agents = []
+last_call = pygame.time.get_ticks()
 
 
 random.seed(10)
@@ -88,7 +79,7 @@ while True:
             sys.exit()
 
     now = pygame.time.get_ticks()
-    if now - last_call >= interval:  # Wykonuj co 2 sekundy
+    if now - last_call >= INTERVAL:  # Wykonuj co 2 sekundy
         for i, agent in enumerate(agents):
             if agent.health_state == 'S' or agent.health_state == 'R' or agent.health_state == 'D':
                 continue
@@ -141,27 +132,18 @@ while True:
                         agent.health_state = 'R'
                         agent.change_color()
 
-
-
-                #for agent2 in agents[i + 1:]:  # Porównuj tylko unikalne pary
-
-            #change_to_infected_logic(agent)
-            # change_to_recovered_logic(agent)
-            # change_to_dead_logic(agent)  # muszą mieć osobne odliczanie
         last_call = now
 
     for i, agent in enumerate(agents):
         if agent.health_state != 'D':
             agent.move()
-        #
+
         for agent2 in agents[i + 1:]:  # Porównuj tylko unikalne pary
             agent.collision_action(agent2)
-        #     agent.check_exposure(agent2)
+
     for agent in agents:
         agent.draw(screen)
-
 
     pygame.display.update()
     screen.fill(BLACK)
     clock.tick(FPS)
-

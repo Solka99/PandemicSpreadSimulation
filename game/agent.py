@@ -93,23 +93,19 @@ class Agent:
                 self.color = GRAY
 
     def draw(self, screen):
-        # Tworzenie przezroczystych warstw
         radius_surface = pygame.Surface((2 * self.infection_radius, 2 * self.infection_radius), pygame.SRCALPHA)
-        radius_surface.fill((0, 0, 0, 0))  # Czyszczenie warstwy
+        radius_surface.fill((0, 0, 0, 0))
 
-        # Rysowanie strefy infekcji (infection_radius) - półprzezroczysty zielony
         pygame.draw.circle(
             radius_surface,
-            (169, 169, 169, 80),  # Zielony z 50% przezroczystością
+            (169, 169, 169, 80),
             (self.infection_radius, self.infection_radius),
             self.infection_radius,
         )
 
-        # Umieszczanie warstwy na ekranie
         screen.blit(radius_surface,
                     (int(self.position.x - self.infection_radius), int(self.position.y - self.infection_radius)))
 
-        # Rysowanie samego agenta
         pygame.draw.circle(screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
 
     def get_distance(self, other):

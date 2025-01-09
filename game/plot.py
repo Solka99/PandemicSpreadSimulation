@@ -1,10 +1,13 @@
-import matplotlib;matplotlib.use("TkAgg")
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import threading
+from collections import deque
+
 
 class PlotManager:
-    def __init__(self):
+    def __init__(self, smoothing_window=5):
         self.time_steps = []
         self.susceptible_counts = []
         self.exposed_counts = []
@@ -12,46 +15,103 @@ class PlotManager:
         self.recovered_counts = []
         self.dead_counts = []
 
-    def update_data(self,frame,agents):
+        # Kolejki do wygładzania
+        self.smoothing_window = smoothing_window
+        self.susceptible_queue = deque(maxlen=smoothing_window)
+        self.exposed_queue = deque(maxlen=smoothing_window)
+        self.infected_queue = deque(maxlen=smoothing_window)
+        self.recovered_queue = deque(maxlen=smoothing_window)
+        self.dead_queue = deque(maxlen=smoothing_window)
+
+        # Flaga zamknięcia okna
+        self.window_closed = False
+
+    def calculate_moving_average(self, queue, new_value):
+        """
+        Aktualizuje kolejkę i oblicza średnią kroczącą.
+        """
+        queue.append(new_value)
+        return sum(queue) / len(queue)
+
+    def update_data(self, frame, agents):
+        # Liczenie agentów w różnych stanach zdrowia
         susceptible = sum(1 for agent in agents if agent.health_state == 'S')
         exposed = sum(1 for agent in agents if agent.health_state == 'E')
         infected = sum(1 for agent in agents if agent.health_state == 'I')
         recovered = sum(1 for agent in agents if agent.health_state == 'R')
         dead = sum(1 for agent in agents if agent.health_state == 'D')
 
-        self.susceptible_counts.append(susceptible)
-        self.exposed_counts.append(exposed)
-        self.infected_counts.append(infected)
-        self.recovered_counts.append(recovered)
-        self.dead_counts.append(dead)
+        # Aktualizacja z wygładzaniem
+        susceptible_avg = self.calculate_moving_average(self.susceptible_queue, susceptible)
+        exposed_avg = self.calculate_moving_average(self.exposed_queue, exposed)
+        infected_avg = self.calculate_moving_average(self.infected_queue, infected)
+        recovered_avg = self.calculate_moving_average(self.recovered_queue, recovered)
+        dead_avg = self.calculate_moving_average(self.dead_queue, dead)
 
-        plt.cla()
+        # Aktualizacja list danych
+        self.time_steps.append(frame)
+        self.susceptible_counts.append(susceptible_avg)
+        self.exposed_counts.append(exposed_avg)
+        self.infected_counts.append(infected_avg)
+        self.recovered_counts.append(recovered_avg)
+        self.dead_counts.append(dead_avg)
 
-        categories = ["Susceptible", "Exposed", "Infected", "Recovered", "Dead"]
-        values = [
-            self.susceptible_counts[-1], # ostatnia wartośćmw liście to ostatni count
-            self.exposed_counts[-1],
-            self.infected_counts[-1],
-            self.recovered_counts[-1],
-            self.dead_counts[-1],
-        ]
-        plt.ylim(0, len(agents))
+    def save_plot(self, agents):
+        """
+        Rysuje końcowy wykres i zapisuje go jako PNG.
+        """
+        fig, ax = plt.subplots()
 
-        plt.bar(categories, values, color=["green", "yellow", "red", "blue", "gray"])
-        plt.xlabel("Health States")
-        plt.ylabel("Count")
-        plt.title("Agent Health State Over Time")
-        plt.tight_layout()
+        # Rysowanie wykresu
+        ax.plot(self.time_steps, self.susceptible_counts, label="Susceptible", color="green")
+        ax.plot(self.time_steps, self.exposed_counts, label="Exposed", color="yellow")
+        ax.plot(self.time_steps, self.infected_counts, label="Infected", color="red")
+        ax.plot(self.time_steps, self.recovered_counts, label="Recovered", color="blue")
+        ax.plot(self.time_steps, self.dead_counts, label="Dead", color="gray")
 
+        # Ustawienia osi i tytułów
+        ax.set_xlabel("Time Steps")
+        ax.set_ylabel("Agent Count")
+        ax.set_title("Health States Over Time (Smoothed)")
+        ax.legend()
+        ax.set_xlim(0, max(self.time_steps) if self.time_steps else 1)
+        ax.set_ylim(0, len(agents))
+
+        # Zapis jako PNG
+        fig.savefig("simulation_plot.png")
+        plt.close(fig)
 
     def animation(self, agents):
-        def update(frame):
-            self.update_data(frame,agents)  # Przekazywanie agents do update_data
+        fig, ax = plt.subplots()
 
-        ani = FuncAnimation(plt.gcf(), update,frames=None, interval=500)
+        def update(frame):
+            self.update_data(frame, agents)
+            ax.clear()
+
+            # Rysowanie wykresu dla każdego stanu zdrowia
+            ax.plot(self.time_steps, self.susceptible_counts, label="Susceptible", color="green")
+            ax.plot(self.time_steps, self.exposed_counts, label="Exposed", color="yellow")
+            ax.plot(self.time_steps, self.infected_counts, label="Infected", color="red")
+            ax.plot(self.time_steps, self.recovered_counts, label="Recovered", color="blue")
+            ax.plot(self.time_steps, self.dead_counts, label="Dead", color="gray")
+
+            # Ustawienia osi i tytułów
+            ax.set_xlabel("Time Steps")
+            ax.set_ylabel("Agent Count")
+            ax.set_title("Health States Over Time (Smoothed)")
+            ax.legend()
+            ax.set_xlim(0, max(self.time_steps) if self.time_steps else 1)
+            ax.set_ylim(0, len(agents))
+
+        def on_close(event):
+            self.window_closed = True
+            self.save_plot(agents)
+
+        fig.canvas.mpl_connect("close_event", on_close)
+
+        animation = FuncAnimation(fig, update, frames=None, interval=1000)
         plt.show()
 
     def run_in_thread(self, agents):
-        """Uruchamia wykres w osobnym wątku."""
-        plot_thread = threading.Thread(target=self.animation, args=(agents,), daemon=True) # wyłączy się jak wyłączy się główny program
+        plot_thread = threading.Thread(target=self.animation, args=(agents,), daemon=True)
         plot_thread.start()

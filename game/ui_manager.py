@@ -69,11 +69,13 @@ class UIManager:
 
                             user_settings = {
                                 "population": int(population) if population.isdigit() else 100,
-                                "infection_distance": float(infection_distance) if infection_distance.replace('.', '',
-                                                                                                  1).isdigit() else 30,
-                                "vaccinated_agents_number": int(vaccinated_agents_number) if vaccinated_agents_number.isdigit() else 50,
+                                "infection_distance":
+                                    float(infection_distance) if infection_distance.replace('.', '',
+                                                                                            1).isdigit() else 30,
+                                "vaccinated_agents_number": int(
+                                    vaccinated_agents_number) if vaccinated_agents_number.isdigit() else 50,
                             }
-                            running=False
+                            running = False
 
             self.manager.update(time_delta)
 
