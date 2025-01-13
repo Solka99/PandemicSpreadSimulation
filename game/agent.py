@@ -13,7 +13,8 @@ GRAY = (128, 128, 128)
 
 
 class Agent:
-    def __init__(self, id, x, y, age, health_state, vaccinated, radius, infection_distance, incubation_time, recovered_time):
+    def __init__(self, id, x, y, age, health_state, vaccinated, radius, infection_distance, incubation_time,
+                 recovered_time):
         self.id = id
         self.x = x
         self.y = y
@@ -50,7 +51,7 @@ class Agent:
             self.direction.y *= -1
             self.position.y = SCREEN_HEIGHT
 
-    def collision_action(self,dot2):
+    def collision_action(self, dot2):
         distance = math.sqrt((self.position.x - dot2.position.x) ** 2 + (self.position.y - dot2.position.y) ** 2)
         if self.health_state == 'D' or dot2.health_state == 'D':
             return
@@ -61,19 +62,12 @@ class Agent:
             dot2.direction.y *= -1
             self.move()
             dot2.move()
-            # if self.health_state == 'I' and dot2.health_state == 'S':
-            #     dot2.health_state = 'E'
-            #     dot2.change_color()
-            # if dot2.health_state == 'I' and self.health_state == 'S':
-            #     self.health_state = 'E'
-            #     self.change_color()
 
     def check_exposure(self, other):
         if self.health_state == 'I':
             distance = self.position.distance_to(other.position)
             if self.radius < distance <= self.infection_radius:
                 other.change_health_state('E')
-
 
     def change_health_state(self, state):
         self.health_state = state

@@ -62,7 +62,6 @@ class UIManager:
                 if event.type == pygame.USEREVENT:
                     if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                         if event.ui_element == self.confirm_button:
-                            # Pobierz dane użytkownika
                             population = self.input_population.get_text()
                             infection_distance = self.input_infection_distance.get_text()
                             vaccinated_agents_number = self.vaccinated_agents_number.get_text()
